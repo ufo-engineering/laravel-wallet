@@ -16,8 +16,8 @@ class CreateWalletsTable extends Migration
         $userClass = app(config('wallet.user_model', 'App\User'));
 
         Schema::create('wallets', function (Blueprint $table) use ($userClass) {
-            $table->increments('id');
-            $table->unsignedInteger($userClass->getForeignKey())->nullable();
+            $table->uuid('id')->primary();
+            $table->uuid($userClass->getForeignKey())->nullable();
 
             $table->bigInteger('balance')->default(0);
 

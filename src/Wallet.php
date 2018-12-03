@@ -1,6 +1,6 @@
 <?php
 
-namespace Depsimon\Wallet;
+namespace UfoEngineering\Wallet;
 
 use Illuminate\Database\Eloquent\Model;
 

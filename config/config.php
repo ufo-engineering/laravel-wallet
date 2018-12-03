@@ -10,11 +10,11 @@ return [
     /**
      * Change this if you extend the default Wallet Model
      */
-    'wallet_model' => 'Depsimon\Wallet\Wallet',
+    'wallet_model' => 'UfoEngineering\Wallet\Wallet',
 
     /**
      * Change this if you extend the default Transaction Model
      */
-    'transaction_model' => 'Depsimon\Wallet\Transaction',
+    'transaction_model' => 'UfoEngineering\Wallet\Transaction',
 
 ];

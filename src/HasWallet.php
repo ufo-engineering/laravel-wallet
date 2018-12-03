@@ -1,6 +1,10 @@
 <?php
 
-namespace Depsimon\Wallet;
+namespace UfoEngineering\Wallet;
+
+use UfoEngineering\Wallet\Exception\FailedWalletTransactionException;
+use Exception;
+use DB;
 
 trait HasWallet
 {
@@ -43,24 +47,39 @@ trait HasWallet
      * @param  integer $amount
      * @param  string  $type
      * @param  array   $meta
+     *
+     * @throws UfoEngineering\Wallet\Exception\FailedWalletTransactionException
+     * @return boolean
      */
-    public function deposit($amount, $type = 'deposit', $meta = [], $accepted = true)
+    public function deposit($amount, $type = 'deposit', $meta = [], $accepted = true) : bool
     {
-        if ($accepted) {
-            $this->wallet->balance += $amount;
-            $this->wallet->save();
-        } elseif (! $this->wallet->exists) {
-            $this->wallet->save();
+        $transaction_status = false;
+        try {
+            DB::beginTransaction();
+                if ($accepted) {
+                    $this->wallet->balance += $amount;
+                    $transaction_status = $this->wallet->save();
+                } elseif (! $this->wallet->exists) {
+                    $transaction_status = $this->wallet->save();
+                }
+
+                if ($transaction_status) {
+                    $this->wallet->transactions()
+                        ->create([
+                            'amount' => $amount,
+                            'hash' => uniqid('lwch_'),
+                            'type' => $type,
+                            'accepted' => $accepted,
+                            'meta' => $meta
+                        ]);
+                }
+
+            DB::commit();
+        } catch (Exception $e) {
+            throw new FailedWalletTransactionException('Fail move credits to this account', null, $e);
         }
 
-        $this->wallet->transactions()
-            ->create([
-                'amount' => $amount,
-                'hash' => uniqid('lwch_'),
-                'type' => $type,
-                'accepted' => $accepted,
-                'meta' => $meta
-            ]);
+        return $transaction_status;
     }
 
     /**
@@ -80,26 +99,41 @@ trait HasWallet
      * @param  string  $type
      * @param  array   $meta
      * @param  boolean $shouldAccept
+     *
+     * @throws UfoEngineering\Wallet\Exception\FailedWalletTransactionException
+     * @return boolean
      */
-    public function withdraw($amount, $type = 'withdraw', $meta = [], $shouldAccept = true)
+    public function withdraw($amount, $type = 'withdraw', $meta = [], $shouldAccept = true) : bool
     {
-        $accepted = $shouldAccept ? $this->canWithdraw($amount) : true;
+        $transaction_status = false;
+        try {
+            DB::beginTransaction();
+                $accepted = $shouldAccept ? $this->canWithdraw($amount) : true;
 
-        if ($accepted) {
-            $this->wallet->balance -= $amount;
-            $this->wallet->save();
-        } elseif (! $this->wallet->exists) {
-            $this->wallet->save();
+                if ($accepted) {
+                    $this->wallet->balance -= $amount;
+                    $transaction_status = $this->wallet->save();
+                } elseif (! $this->wallet->exists) {
+                    $transaction_status = $this->wallet->save();
+                }
+
+                if ($transaction_status) {
+                    $this->wallet->transactions()
+                        ->create([
+                            'amount' => $amount,
+                            'hash' => uniqid('lwch_'),
+                            'type' => $type,
+                            'accepted' => $accepted,
+                            'meta' => $meta
+                        ]);
+                }
+
+            DB::commit();
+        } catch (Exception $e) {
+            throw new FailedWalletTransactionException('Fail move credits from this account', null, $e);
         }
 
-        $this->wallet->transactions()
-            ->create([
-                'amount' => $amount,
-                'hash' => uniqid('lwch_'),
-                'type' => $type,
-                'accepted' => $accepted,
-                'meta' => $meta
-            ]);
+        return $transaction_status;
     }
 
     /**

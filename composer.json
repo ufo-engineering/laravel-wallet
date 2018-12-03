@@ -1,15 +1,15 @@
 {
-    "name": "depsimon/laravel-wallet",
+    "name": "UfoEngineering/laravel-wallet",
     "description": "Easy to use virtual wallet for your app",
     "keywords": [
-        "depsimon",
+        "UfoEngineering",
         "laravel-wallet",
         "virtual",
         "currency",
         "credits",
         "wallet"
     ],
-    "homepage": "https://github.com/depsimon/laravel-wallet",
+    "homepage": "https://github.com/UfoEngineering/laravel-wallet",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,13 @@
             "email": "simon@webartisan.be",
             "homepage": "https://webartisan.be",
             "role": "Developer"
-        }
+        },
+        {
+            "name": "Nick Kudelia",
+            "email": "duckduck.ufo@gmail.com",
+            "homepage": "https://github.com/DuckUfo",
+            "role": "Developer"
+         }
     ],
     "require": {
         "php": "^7.0",
@@ -25,12 +31,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Depsimon\\Wallet\\": "src"
+            "UfoEngineering\\Wallet\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Depsimon\\Wallet\\Tests\\": "tests"
+            "UfoEngineering\\Wallet\\Tests\\": "tests"
         }
     },
     "config": {
@@ -39,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Depsimon\\Wallet\\WalletServiceProvider"
+                "UfoEngineering\\Wallet\\WalletServiceProvider"
             ],
             "aliases": {
-                "Wallet": "Depsimon\\Wallet\\WalletFacade"
+                "Wallet": "UfoEngineering\\Wallet\\WalletFacade"
             }
         }
     }

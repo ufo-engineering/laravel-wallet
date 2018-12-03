@@ -14,8 +14,8 @@ class CreateWalletTransactionsTable extends Migration
     public function up()
     {
         Schema::create('wallet_transactions', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('wallet_id');
+            $table->uuid('id')->primary();
+            $table->uuid('wallet_id');
 
             $table->integer('amount'); // amount is an integer, it could be "dollars" or "cents"
             $table->string('hash', 60); // hash is a uniqid for each transaction
