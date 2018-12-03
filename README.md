@@ -16,7 +16,7 @@ This package is a small and simple implementation of this concept with place for
 Install the package with composer:
 
 ```bash
-composer require UfoEngineering/laravel-wallet
+composer require ufo-engineering/laravel-wallet
 ```
 
 ## Run Migrations
