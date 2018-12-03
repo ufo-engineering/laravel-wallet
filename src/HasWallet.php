@@ -3,6 +3,7 @@
 namespace UfoEngineering\Wallet;
 
 use UfoEngineering\Wallet\Exception\FailedWalletTransactionException;
+use UfoEngineering\Wallet\Exception\WalletNotExistsException;
 use Exception;
 use DB;
 
@@ -13,7 +14,11 @@ trait HasWallet
      */
     public function getBalanceAttribute()
     {
-        return $this->wallet->balance;
+        try {
+            return $this->wallet->balance;
+        } catch (Exception $e) {
+            throw new WalletNotExistsException('User has no wallet');
+        }
     }
 
     /**
@@ -21,7 +26,7 @@ trait HasWallet
      */
     public function wallet()
     {
-        return $this->hasOne(config('wallet.wallet_model', Wallet::class))->withDefault();
+        return $this->hasOne(config('wallet.wallet_model', Wallet::class));
     }
 
     /**
@@ -54,12 +59,16 @@ trait HasWallet
     public function deposit($amount, $type = 'deposit', $meta = [], $accepted = true) : bool
     {
         $transaction_status = false;
+
+        if (!$this->wallet) {
+            throw new WalletNotExistsException('User has no wallet');
+        }
+
         try {
             DB::beginTransaction();
+
                 if ($accepted) {
                     $this->wallet->balance += $amount;
-                    $transaction_status = $this->wallet->save();
-                } elseif (! $this->wallet->exists) {
                     $transaction_status = $this->wallet->save();
                 }
 
@@ -106,14 +115,13 @@ trait HasWallet
     public function withdraw($amount, $type = 'withdraw', $meta = [], $shouldAccept = true) : bool
     {
         $transaction_status = false;
+        $accepted = $shouldAccept ? $this->canWithdraw($amount) : true;
+
         try {
             DB::beginTransaction();
-                $accepted = $shouldAccept ? $this->canWithdraw($amount) : true;
 
                 if ($accepted) {
                     $this->wallet->balance -= $amount;
-                    $transaction_status = $this->wallet->save();
-                } elseif (! $this->wallet->exists) {
                     $transaction_status = $this->wallet->save();
                 }
 
